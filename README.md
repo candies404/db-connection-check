@@ -56,7 +56,7 @@ jobs:
           database_uri: ${{ secrets.DATABASE_URI }}
 
       - name: 输出结果
-        run: echo "数据库连接测试结果：${{ steps.db-check.outputs.success }}"
+        run: echo "数据库连接测试结果：${{ steps.db-check.outputs.status }}"
 ```
 
 ## 注意事项
