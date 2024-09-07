@@ -74,7 +74,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.version.outputs.new_tag }}
-        name: 发布 ${{ steps.version.outputs.new_tag }}
+        name: ${{ steps.version.outputs.new_tag }}
         body: |
           新版本发布 ${{ steps.version.outputs.new_tag }}
         draft: false
