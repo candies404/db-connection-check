@@ -5,9 +5,9 @@ inputs:
     description: '用于连接的数据库 URI'
     required: true
 outputs:
-  success:
+  status:
     description: '数据库连接是否成功'
-    value: ${{ steps.db_check.outputs.success }}
+    value: ${{ steps.db_check.outputs.status }}
 runs:
   using: "composite"
   steps:
@@ -27,8 +27,8 @@ runs:
         DATABASE_URI: ${{ inputs.database_uri }}
       run: |
         if python ${{ github.action_path }}/check_db_connection.py; then
-          echo "success=true" >> $GITHUB_OUTPUT
+          echo "status=true" >> $GITHUB_OUTPUT
         else
-          echo "success=false" >> $GITHUB_OUTPUT
+          echo "status=false" >> $GITHUB_OUTPUT
         fi
       shell: bash
