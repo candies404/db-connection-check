@@ -3,51 +3,51 @@ name: Version Bump and Release
 on:
   push:
     branches:
-      - main  # 只在推送到 main 分支时触发
+      - main
 
 jobs:
   release:
     runs-on: ubuntu-latest
     
     steps:
-    # 步骤 1: 检出代码
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 获取所有历史记录和标签
+        fetch-depth: 0
 
-    # 步骤 2: 获取最新标签并递增版本号
     - name: Get latest tag and bump version
       id: version
       run: |
-        # 获取最新标签，如果没有则使用 v0.1.0
         latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0")
         echo "Latest tag: $latest_tag"
         
-        # 解析标签并递增版本号
         if [[ $latest_tag =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
           major="${BASH_REMATCH[1]}"
           minor="${BASH_REMATCH[2]}"
           patch="${BASH_REMATCH[3]}"
           
-          # 根据提交信息决定如何递增版本号
           if git log -1 --pretty=%B | grep -q "BREAKING"; then
-            new_tag="v$((major + 1)).0.0"  # 主版本号递增
+            new_tag="v$((major + 1)).0.0"
           elif git log -1 --pretty=%B | grep -q "feat:"; then
-            new_tag="v$major.$((minor + 1)).0"  # 次版本号递增
+            new_tag="v$major.$((minor + 1)).0"
           else
-            new_tag="v$major.$minor.$((patch + 1))"  # 修订号递增
+            new_tag="v$major.$minor.$((patch + 1))"
           fi
         else
-          new_tag="v0.1.0"  # 如果标签格式无效，使用默认值
+          new_tag="v0.1.0"
         fi
         
         echo "New tag: $new_tag"
-        echo "new_tag=$new_tag" >> $GITHUB_OUTPUT  # 将新标签保存为输出变量
+        echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
 
-    # 步骤 3: 创建 GitHub Release
+    - name: Create and push new tag
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git tag ${{ steps.version.outputs.new_tag }}
+        git push origin ${{ steps.version.outputs.new_tag }}
+
     - name: Create Release
-      id: create_release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.version.outputs.new_tag }}
@@ -57,18 +57,9 @@ jobs:
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 提供的 token
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # 步骤 4: 更新 latest 标签
     - name: Update latest tag
-      if: success() && steps.create_release.outcome == 'success'  # 只在前面步骤成功时执行
       run: |
-        # 配置 Git
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        
-        # 创建或更新 latest 标签
         git tag -fa latest -m "Update latest tag to ${{ steps.version.outputs.new_tag }}"
-        
-        # 强制推送 latest 标签到远程仓库
         git push origin latest --force
