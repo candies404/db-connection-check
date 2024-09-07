@@ -15,7 +15,7 @@
 ```yaml
 steps:
   - name: 检查数据库连接
-    uses: candies404/db-connection-check@v1
+    uses: candies404/db-connection-check@latest
     with:
       database_uri: ${{ secrets.DATABASE_URI }}
 ```
@@ -51,7 +51,7 @@ jobs:
 
       - name: 数据库连接检查
         id: db-check
-        uses: candies404/db-connection-check@v1
+        uses: candies404/db-connection-check@latest
         with:
           database_uri: ${{ secrets.DATABASE_URI }}
 
@@ -72,7 +72,7 @@ jobs:
 
 ## 许可证
 
-本项目采用 MIT 许可证。详情请见 [LICENSE](https://github.com/candies404/db-connection-check/blob/main/LICENSE) 文件。
+本项目采用 MIT 许可证。详情请见 [LICENSE](./LICENSE) 文件。
 
 ## 联系方式
 如果您有任何问题或需要支持，请通过以下方式联系我们：
